@@ -9,7 +9,7 @@ import * as Preview from './utils/WindowPreviewer.js'
 import setGridLayout from './grid.js'
 import setSidebar from './sidebar.js'
 import setTheme from './theme.js'
-import { configurePrettierHotkeys } from '../../monaco-prettier/configurePrettier.js'
+import { configurePrettierHotkeys } from '../monaco-prettier/configurePrettier.js'
 import { getHistoryState, subscribeHistory, setHistory } from './history.js'
 
 import './aside.js'
@@ -24,7 +24,6 @@ import { BUTTON_ACTIONS } from './constants/button-actions.js'
 import './components/layout-preview/layout-preview.js'
 import './components/codi-editor/codi-editor.js'
 
-
 const { layout: currentLayout, sidebar, theme, saveLocalstorage } = getState()
 const { history, updateHistoryItem } = getHistoryState()
 
@@ -33,24 +32,15 @@ setSidebar(sidebar)
 setTheme(theme)
 
 const iframe = $('iframe')
-
 const editorElements = $$('codi-editor')
 
-let { pathname } = window.location
-
-if (pathname === '/' && saveLocalstorage === true && history.current) {
-  const hashedCode = history.items.find(item => item.id === history.current).value
-  window.history.replaceState(null, null, `/${hashedCode}`)
-  pathname = window.location.pathname
+// Function to get initial code from localStorage
+const getInitialCode = () => {
+  const savedCode = localStorage.getItem('savedCode')
+  return savedCode ? JSON.parse(savedCode) : { html: '', css: '', javascript: '' }
 }
 
-const [rawHtml, rawCss, rawJs] = pathname.slice(1).split(pathname.includes('%7C') ? '%7C' : '|')
-
-const VALUES = {
-  html: rawHtml ? decode(rawHtml) : '',
-  css: rawCss ? decode(rawCss) : '',
-  javascript: rawJs ? decode(rawJs) : ''
-}
+const VALUES = getInitialCode()
 
 const EDITORS = Array.from(editorElements).reduce((acc, domElement) => {
   const { language } = domElement
@@ -74,12 +64,7 @@ subscribe(state => {
 })
 
 const MS_UPDATE_DEBOUNCED_TIME = 200
-const MS_UPDATE_HASH_DEBOUNCED_TIME = 1000
 const debouncedUpdate = debounce(update, MS_UPDATE_DEBOUNCED_TIME)
-const debouncedUpdateHash = debounce(
-  updateHashedCode,
-  MS_UPDATE_HASH_DEBOUNCED_TIME
-)
 
 const { html: htmlEditor, css: cssEditor, javascript: jsEditor } = EDITORS
 
@@ -130,7 +115,9 @@ function update ({ notReload } = {}) {
 
   updateCss()
 
-  debouncedUpdateHash(values)
+  // Save to localStorage
+  localStorage.setItem('savedCode', JSON.stringify(values))
+
   if (saveLocalstorage) {
     updateHistory(values)
   }
@@ -143,11 +130,6 @@ function updateCss () {
   if (iframeStyleEl) {
     iframeStyleEl.textContent = cssEditor.getValue()
   }
-}
-
-function updateHashedCode ({ html, css, js }) {
-  const hashedCode = `${encode(html)}|${encode(css)}|${encode(js)}`
-  window.history.replaceState(null, null, `/${hashedCode}`)
 }
 
 function updateHistory ({ html, css, js }) {

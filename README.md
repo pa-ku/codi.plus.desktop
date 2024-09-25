@@ -6,7 +6,7 @@
 
 </div>
 
-codi.plus es un fork de [codilink](https://github.com/midudev/codi.link) con nuevas features
+codi.plus.desktop te brinda la posibilidad de utilizar codiplus de forma offline en windows macOS y linux
 
 <br>
 

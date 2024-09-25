@@ -1,10 +1,10 @@
 {
   "name": "codiplus",
   "version": "1.0.0",
-  "description": "A minimal Electron application with JavaScript",
+  "description": "HTML, CSS, JS sandbox.",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "pakudev",
+  "homepage": "https://codeplusweb.vercel.app/",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
